@@ -61,10 +61,12 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-passwordLink.addEventListener("click", (event) => {
-  event.preventDefault();
-  setHint("Area password non ancora attiva.", "neutral");
-});
+if (passwordLink) {
+  passwordLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    setHint("Area password non ancora attiva.", "neutral");
+  });
+}
 
 const clamp = (min, value, max) => Math.max(min, Math.min(value, max));
 
