@@ -20,7 +20,7 @@ const setHint = (message, tone) => {
   else hint.style.color = "";
 };
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const email = emailInput.value.trim();
@@ -30,13 +30,35 @@ form.addEventListener("submit", (event) => {
     return;
   }
 
-  const stored = JSON.parse(localStorage.getItem("newsletter_emails") || "[]");
-  const next = Array.isArray(stored) ? stored : [];
-  if (!next.includes(email)) next.push(email);
-  localStorage.setItem("newsletter_emails", JSON.stringify(next));
+  const submitButton = form.querySelector('button[type="submit"]');
+  const prevButtonText = submitButton ? submitButton.textContent : "";
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "Invio...";
+  }
 
-  setHint("Grazie! Ti avviseremo al lancio.", "success");
-  form.reset();
+  try {
+    const response = await fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      headers: { Accept: "application/json" }
+    });
+
+    if (!response.ok) {
+      setHint("Errore durante l’invio. Riprova tra poco.", "error");
+      return;
+    }
+
+    setHint("Grazie! Ti avviseremo al lancio.", "success");
+    form.reset();
+  } catch {
+    setHint("Connessione non disponibile. Riprova.", "error");
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = prevButtonText || "Sign up";
+    }
+  }
 });
 
 passwordLink.addEventListener("click", (event) => {
